@@ -2,4 +2,64 @@
 
 require 'databass'
 
-puts "HELLO"
+require 'optparse'
+require 'ostruct'
+
+options = OpenStruct.new path: '.', hosts: 'localhost:2181', log_level: 'INFO'
+OptionParser.new do |opts|
+  opts.banner = "Usage: #{opts.program_name} [options] <cluster name>"
+
+  opts.on("-v", "--[no-]verbose", "Run verbosely") do |v|
+    options.log_level = 'DEBUG'
+  end
+
+  opts.on("-s", "--server", "Start a new server") do
+  	options.cmd = :server
+  end
+
+  opts.on("-z", "--zookeeper", "Comma separated list of host:port tuples for the Zookeeper fleet") do |hosts|
+  	options.hosts = hosts
+  end
+
+  opts.on("-p", "--path", "Data path for server data") do |p|
+  	options.path = p
+  end
+
+	opts.separator ""
+
+	# No argument, shows at tail.  This will print an options summary.
+	# Try it and see!
+	opts.on_tail("-h", "--help", "Show this message") do
+		puts opts
+		exit
+	end
+
+	# Another typical switch to print the version.
+	opts.on_tail("--version", "Show version") do
+		puts Databass::Version.join('.')
+		exit
+	end
+end.parse!
+
+#Setup the logger
+require 'logger'
+$LOG = Logger.new(STDERR).tap do |l|
+	l.level = Logger.const_get(options.log_level)
+end
+
+#Get the cluster name
+cluster_name = ARGV.shift or raise "Need a cluster name"
+
+#Only use single host for now, figure out multiple later
+host = options.hosts.split(',').map(&:strip).first
+
+#Star the zookeeper client
+require 'zookeeper'
+zk = Zookeeper.new(host)
+raise "Could not connect to Zookeeper" unless zk.connected?
+
+
+#Execute the command specified
+require 'databass'
+
+Databass.send(options.cmd, zk, cluster_name, opts.path)
