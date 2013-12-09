@@ -1,24 +1,20 @@
 # Databass
 
-TODO: Write a gem description
+NOTE: Databass is a work in progress. It doesn't (yet) do anything particularly useful. 
+
+Databass is a tool for making it easy to manage a cluster of PostgreSQL databases. Databass is a daemon and accompanying command line tools designed to allow administrators automatically deploy Postgres instances, detect and recover from failovers, and provision new slaves into already running clusters. 
 
 ## Installation
 
-Add this line to your application's Gemfile:
+For database instances, install PostgreSQL 9.3 or later. Then,
 
-    gem 'databass'
+  gem install databass
 
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
-
-    $ gem install databass
+Additionally, you will need a running Zookeeper cluster. 
 
 ## Usage
 
-TODO: Write usage instructions here
+It does nothing useful yet. 
 
 ## Contributing
 
